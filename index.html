@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Ridge OÜ – AI, mobile apps & digital platforms</title>
+  <!-- Font Awesome 6 (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Leaflet CSS for map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Google Fonts (Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: #fafcff;
+      color: #0a1e2f;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Header & navigation */
+    .header {
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 6px 18px rgba(0,20,50,0.04);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid rgba(0,110,230,0.1);
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 1.9rem;
+      letter-spacing: -0.03em;
+      background: linear-gradient(145deg, #0055cc, #1f3a7a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .logo span {
+      background: #0b2b4a;
+      -webkit-text-fill-color: white;
+      background: linear-gradient(145deg, #1a4c8c, #0a2e5c);
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 1.2rem;
+      color: white;
+      -webkit-text-fill-color: white;
+      margin-left: 6px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.2rem;
+      font-weight: 500;
+      color: #1f3a5c;
+    }
+    .nav-links a {
+      padding: 0.4rem 0;
+      border-bottom: 2px solid transparent;
+      transition: 0.2s;
+    }
+    .nav-links a:hover {
+      border-bottom-color: #2f7cf0;
+      color: #0a3e6d;
+    }
+    .hamburger {
+      display: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #0a2e4a;
+    }
+
+    /* main sections */
+    section {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .hero, #home {
+      padding-top: 3rem;
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 36px;
+      box-shadow: 0 30px 50px -20px rgba(0,50,100,0.15);
+      padding: 2.5rem;
+    }
+
+    h1 {
+      font-size: 3.8rem;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      background: linear-gradient(125deg, #0c2b4b, #1d4e8f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #0a3d6b;
+      color: white;
+      font-weight: 600;
+      padding: 0.9rem 2.5rem;
+      border-radius: 50px;
+      border: none;
+      box-shadow: 0 10px 20px -8px rgba(10,60,130,0.3);
+      transition: 0.25s;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn:hover {
+      background: #155fa0;
+      transform: scale(1.02);
+      box-shadow: 0 15px 28px -6px #0a3e6d70;
+    }
+
+    .grid-2, .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* image placeholders – office & AI */
+    .office-image {
+      border-radius: 24px;
+      box-shadow: 0 20px 30px -5px rgba(0,0,0,0.1);
+      background: #cad9ed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      height: 260px;
+      background: linear-gradient(145deg, #b8d1f0, #dbe9fe);
+      font-size: 4rem;
+      color: #1a4480;
+      border: 1px solid rgba(255,255,255,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    .office-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+    }
+    .office-image i {
+      position: absolute;
+      opacity: 0.2;
+      font-size: 5rem;
+    }
+
+    .ai-image {
+      border-radius: 24px;
+      box-shadow: 0 20px 30px -5px rgba(0,0,0,0.1);
+      background: radial-gradient(circle at 70% 20%, #e0edff, #f5faff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      height: 260px;
+      font-size: 4rem;
+      color: #1d4e8f;
+      border: 1px solid rgba(70,147,236,0.2);
+      position: relative;
+    }
+
+    .service-card {
+      background: white;
+      border-radius: 28px;
+      padding: 2rem 1.8rem;
+      box-shadow: 0 8px 24px rgba(0,60,120,0.06);
+      transition: 0.2s;
+      border: 1px solid rgba(0,110,230,0.1);
+      backdrop-filter: blur(4px);
+    }
+
+    /* contact & map */
+    .contact-map {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.2rem;
+    }
+
+    .map-container {
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 18px 30px -8px rgba(10,50,90,0.12);
+      height: 300px;
+      width: 100%;
+      border: 2px solid white;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+      background: #cbdbe9;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 1rem 1.2rem;
+      border: 1.5px solid rgba(0,80,150,0.1);
+      border-radius: 40px;
+      font-family: inherit;
+      font-size: 1rem;
+      background: white;
+      transition: 0.15s;
+    }
+    input:focus, textarea:focus {
+      border-color: #2f7cf0;
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(47,124,240,0.1);
+    }
+
+    .footer {
+      background: #0a1e2f;
+      color: #b0ccf0;
+      padding: 2.5rem 2rem;
+      border-radius: 48px 48px 0 0;
+      margin-top: 2rem;
+    }
+    .footer a {
+      color: #c8dfff;
+      text-decoration: underline 1px dotted;
+    }
+
+    .policy-section {
+      background: white;
+      border-radius: 48px;
+      padding: 3rem;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.02);
+    }
+
+    /* mobile */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .hamburger { display: block; }
+      .grid-2, .grid-3, .contact-map { grid-template-columns: 1fr; }
+      h1 { font-size: 2.5rem; }
+    }
+
+    /* Show nav-links if checkbox is checked (hamburger mock) */
+    #nav-toggle {
+      display: none;
+    }
+    #nav-toggle:checked ~ .nav-links {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin-top: 1.5rem;
+    }
+    .nav-links {
+      display: flex;
+    }
+    @media (max-width: 900px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        gap: 0.8rem;
+        padding: 1.5rem 0 0.5rem;
+      }
+      #nav-toggle:checked ~ .nav-links {
+        display: flex;
+      }
+    }
+
+    .ai-badge {
+      display: inline-block;
+      background: rgba(70, 147, 236, 0.12);
+      border-radius: 100px;
+      padding: 0.2rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #0e4a86;
+      border: 1px solid rgba(0,110,230,0.2);
+      margin-bottom: 1rem;
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #a0c6f0, transparent);
+      margin: 2rem 0;
+    }
+
+    /* office photo card */
+    .office-showcase {
+      display: flex;
+      gap: 1.8rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    .office-card {
+      flex: 1 1 200px;
+      background: white;
+      border-radius: 28px;
+      padding: 1.4rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.02);
+      border: 1px solid #eef6ff;
+    }
+    .office-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 20px;
+      margin-bottom: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- STICKY HEADER with navigation -->
+  <header class="header">
+    <div class="nav-container">
+      <div class="logo">
+        <i class="fas fa-robot" style="-webkit-text-fill-color: #1f5490;"></i> Game Ridge<span>OÜ</span>
+      </div>
+      <!-- hamburger toggle -->
+      <input type="checkbox" id="nav-toggle" style="display: none;">
+      <label for="nav-toggle" class="hamburger"><i class="fas fa-bars"></i></label>
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#contact">Contact</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#terms">Terms</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO / HOME section (main) with office image -->
+  <section id="home">
+    <div class="glass-card">
+      <div class="grid-2">
+        <div>
+          <span class="ai-badge"><i class="fas fa-microchip"></i> AI · Mobile · Platforms</span>
+          <h1>Digital intelligence,<br>human-centered.</h1>
+          <p style="font-size: 1.3rem; margin: 1.5rem 0; color: #1f4465; font-weight: 400;">
+            Game Ridge OÜ – Estonian software development studio. We craft mobile apps, AI-driven tools, and scalable digital platforms.
+          </p>
+          <a href="#contact" class="btn"><i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Let's innovate</a>
+          <p style="margin-top: 1.8rem; color: #3c5e7e;"><i class="fas fa-map-pin" style="color: #2f7cf0;"></i> Ahtri tn 12, Tallinn — born in the cloud, based in Kesklinna</p>
+        </div>
+        <!-- OFFICE PHOTO in HERO (realistic office view) -->
+        <div class="office-image" style="flex-direction: column; padding: 0; overflow: hidden;">
+          <!-- placeholder office image – modern Tallinn office -->
+          <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80" alt="Modern office in Tallinn - Game Ridge OÜ workspace" style="width:100%; height:100%; object-fit: cover;">
+          <div style="position: absolute; bottom: 16px; left: 20px; background: rgba(0,0,0,0.55); color: white; padding: 0.5rem 1.5rem; border-radius: 40px; backdrop-filter: blur(4px); font-size: 0.9rem;">
+            <i class="fas fa-building"></i> Ahtri 12 office
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI & specialties: images and description, variety of AI themed pics -->
+  <section style="padding-top: 1rem;">
+    <div class="grid-3">
+      <div class="service-card">
+        <i class="fas fa-robot" style="font-size: 2.8rem; color: #1e5ba3;"></i>
+        <h3 style="margin: 1rem 0 0.6rem;">Intelligent agents</h3>
+        <p>Custom LLM integration, conversational AI, and knowledge mining for enterprises.</p>
+        <div style="margin-top: 1.2rem; font-size: 2rem; color: #4183c4;">
+          <i class="fas fa-network-wired"></i>
+        </div>
+      </div>
+      <div class="service-card">
+        <i class="fas fa-mobile" style="font-size: 2.8rem; color: #1e5ba3;"></i>
+        <h3 style="margin: 1rem 0 0.6rem;">Mobile first</h3>
+        <p>iOS & Android native / cross‑platform. Used by 100k+ users across Europe.</p>
+        <div style="margin-top: 1.2rem; font-size: 2rem; color: #4183c4;">
+          <i class="fas fa-qrcode"></i> <i class="fas fa-bolt"></i>
+        </div>
+      </div>
+      <div class="service-card">
+        <i class="fas fa-chart-line" style="font-size: 2.8rem; color: #1e5ba3;"></i>
+        <h3 style="margin: 1rem 0 0.6rem;">AI computer vision</h3>
+        <p>Real-time object detection, facial recognition, and visual search for retail & security.</p>
+        <div style="margin-top: 1.2rem; font-size: 2rem; color: #4183c4;">
+          <i class="fas fa-eye"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- diverse AI images (again) + extra office photo -->
+  <section style="padding-top: 0;">
+    <div style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; align-items: stretch;">
+      <div style="flex: 1 1 200px; background: linear-gradient(145deg, #f1f8ff, #e3edfc); border-radius: 36px; padding: 1.8rem; text-align: center;">
+        <i class="fas fa-microchip" style="font-size: 3.5rem; color: #2b6196;"></i>
+        <h4>Edge AI</h4>
+        <p style="color: #1f3a5c;">on‑device inference</p>
+      </div>
+      <div style="flex: 1 1 200px; background: linear-gradient(145deg, #ebf3fe, #deeafb); border-radius: 36px; padding: 1.8rem; text-align: center;">
+        <i class="fas fa-language" style="font-size: 3.5rem; color: #2b6196;"></i>
+        <h4>NLP</h4>
+        <p style="color: #1f3a5c;">multilingual understanding</p>
+      </div>
+      <div style="flex: 1 1 200px; background: linear-gradient(145deg, #e1edff, #d1e3fc); border-radius: 36px; padding: 1.8rem; text-align: center;">
+        <i class="fas fa-cogs" style="font-size: 3.5rem; color: #2b6196;"></i>
+        <h4>Smart platforms</h4>
+        <p style="color: #1f3a5c;">SaaS · real‑time analytics</p>
+      </div>
+      <div style="flex: 1 1 200px; background: linear-gradient(145deg, #f3f9ff, #e5f0fd); border-radius: 36px; padding: 1.8rem; text-align: center;">
+        <i class="fas fa-database" style="font-size: 3.5rem; color: #2b6196;"></i>
+        <h4>Vector DB</h4>
+        <p style="color: #1f3a5c;">memory for AI</p>
+      </div>
+    </div>
+    <!-- OFFICE PHOTO GALLERY (real Tallinn workplace) -->
+    <div class="office-showcase">
+      <div class="office-card">
+        <img src="https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=600&auto=format&fit=crop&q=80" alt="Game Ridge OÜ office interior, Tallinn creative space">
+        <h4>🧑‍💻 Kesklinna HQ</h4>
+        <p style="color: #2a4e6b;">Open space, AI lab</p>
+      </div>
+      <div class="office-card">
+        <img src="https://images.unsplash.com/photo-1572025442646-866d16c84a54?w=600&auto=format&fit=crop&q=80" alt="Meeting room with city view, Ahtri 12">
+        <h4>📊 Client meetings</h4>
+        <p style="color: #2a4e6b;">Harju maakond</p>
+      </div>
+      <div class="office-card">
+        <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&auto=format&fit=crop&q=80" alt="Tallinn tech office, Game Ridge team">
+        <h4>☕ Collaborative zone</h4>
+        <p style="color: #2a4e6b;">Ahtri tn 12, 15551</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT section (including map + form + address + OFFICE PHOTO) -->
+  <section id="contact">
+    <div style="display: flex; flex-direction: column; gap: 1.8rem;">
+      <h2 style="font-size: 2.8rem; font-weight: 600; color: #092c44;">Contact & location</h2>
+      <div class="contact-map">
+        <!-- left: map and address + OFFICE PHOTO near map -->
+        <div>
+          <div style="background: white; border-radius: 32px; padding: 1.8rem; box-shadow: 0 6px 18px rgba(0,0,0,0.04);">
+            <h3 style="display: flex; gap: 0.5rem; color: #0b3c5c; margin-bottom: 1.2rem;"><i class="fas fa-map-marked-alt" style="color: #2a71d4;"></i> Harju county, Tallinn</h3>
+            <div class="map-container" id="leafletMapContainer">
+              <div id="map"></div>
+            </div>
+            <!-- OFFICE IMAGE embedded right below the map -->
+            <div style="margin-top: 1.5rem; border-radius: 24px; overflow: hidden; max-height: 160px; border: 1px solid white;">
+              <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1000&auto=format&fit=crop&q=80" alt="Game Ridge OÜ modern office interior Tallinn" style="width: 100%; height: 160px; object-fit: cover;">
+            </div>
+            <p style="margin-top: 1.2rem; background: #e2edfc; padding: 1rem 1.8rem; border-radius: 60px; font-weight: 500;">
+              <i class="fas fa-building"></i> Game Ridge OÜ — Ahtri tn 12, Kesklinna linnaosa, Tallinn, 15551, Estonia
+            </p>
+            <p style="margin-top: 0.6rem;"><i class="fas fa-envelope"></i> eos@Game Ridge.site (business & partnership)</p>
+          </div>
+        </div>
+        <!-- right: contact form (mail to eos@Game Ridge.site) -->
+        <div style="background: white; border-radius: 32px; padding: 2rem; box-shadow: 0 12px 26px rgba(0,70,150,0.06);">
+          <h3 style="font-size: 1.9rem; font-weight: 600; color: #103c5c;">Send a message</h3>
+          <p style="margin-bottom: 1.8rem;">Reach our AI team directly – we reply within 24h.</p>
+          <form action="mailto:eos@Game Ridge.site" method="post" enctype="text/plain">
+            <div class="form-group">
+              <input type="text" name="name" placeholder="Your name" required>
+            </div>
+            <div class="form-group">
+              <input type="email" name="email" placeholder="Email address" required>
+            </div>
+            <div class="form-group">
+              <textarea rows="4" name="message" placeholder="Tell us about your idea..."></textarea>
+            </div>
+            <button type="submit" class="btn" style="background: #155fa0;"><i class="fas fa-paper-plane"></i> Send via eos@Game Ridge.site</button>
+            <p style="margin-top: 0.8rem; font-size: 0.85rem; color: #3f6780;"><i class="fas fa-lock"></i> Your data stays private</p>
+          </form>
+          <!-- small office detail -->
+          <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e9f0f8; display: flex; gap: 0.8rem; align-items: center;">
+            <i class="fas fa-images" style="color: #1f69b0;"></i>
+            <span style="color: #0d4166;">Visit us – modern workspace on Ahtri 12</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIVACY POLICY section -->
+  <section id="privacy">
+    <div class="policy-section">
+      <span class="ai-badge"><i class="fas fa-lock"></i> GDPR compliant</span>
+      <h2 style="font-size: 2.4rem; margin-bottom: 1.2rem; color: #092c44;">Privacy policy</h2>
+      <div style="display: grid; gap: 1.2rem; color: #1e3f57;">
+        <p><strong>Game Ridge OÜ</strong> respects your privacy. This policy describes how we handle your data when you interact with our services, website, or contact forms.</p>
+        <p><i class="fas fa-check-circle" style="color: #1f8b4c;"></i> We collect only necessary data (name, email, message) when you use our contact form. No tracking cookies without consent.</p>
+        <p><i class="fas fa-check-circle" style="color: #1f8b4c;"></i> Your information is used solely to respond to inquiries and improve our services. We never sell personal data.</p>
+        <p><i class="fas fa-check-circle" style="color: #1f8b4c;"></i> All data is stored on EU-based servers. You have the right to access, rectify or erase your data – contact <strong>eos@Game Ridge.site</strong>.</p>
+        <p><i class="fas fa-check-circle" style="color: #1f8b4c;"></i> By using our site you agree to this policy. Updated: 2025.</p>
+      </div>
+      <div style="margin-top: 2rem; background: #eef6ff; border-radius: 20px; padding: 1.5rem;">
+        <i class="fas fa-shield-alt" style="font-size: 1.8rem; color: #0c4e8c;"></i> 
+        <span style="font-weight: 600;">Data Protection Officer:</span> privacy@Game Ridge.site (interim: eos@Game Ridge.site)
+      </div>
+    </div>
+  </section>
+
+  <!-- TERMS OF USE section -->
+  <section id="terms">
+    <div class="policy-section" style="background: #f5f9ff;">
+      <span class="ai-badge"><i class="fas fa-file-contract"></i> Terms of use</span>
+      <h2 style="font-size: 2.4rem; margin-bottom: 1.2rem; color: #092c44;">Terms & conditions</h2>
+      <div style="display: grid; gap: 1.2rem; color: #1e3f57;">
+        <p><strong>Welcome to Game Ridge OÜ.</strong> By accessing our website or using our software solutions, you agree to the following terms.</p>
+        <p><strong>1. Intellectual property</strong> – All AI models, code, and designs are property of Game Ridge OÜ. You may not copy, redistribute, or reverse-engineer without written permission.</p>
+        <p><strong>2. Services</strong> – We deliver mobile apps, AI tools, and digital platforms under specific contract terms. This website is for informational purposes.</p>
+        <p><strong>3. Limitation of liability</strong> – Game Ridge OÜ is not liable for indirect damages arising from the use of our demo applications or site content.</p>
+        <p><strong>4. Governing law</strong> – These terms are governed by the laws of the Republic of Estonia.</p>
+        <p><strong>5. Contact</strong> – For any legal inquiries: eos@Game Ridge.site, Ahtri tn 12, Tallinn.</p>
+      </div>
+      <hr>
+      <p style="font-size: 0.95rem;">Last update: February 2025. If you do not agree with these terms, please refrain from using our services.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER with map recap and email & policy links -->
+  <footer class="footer">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+      <div>
+        <span style="font-size: 2rem; font-weight: 700; color: white;">Game Ridge<span style="color: #9ec3ff;">OÜ</span></span>
+        <p style="margin-top: 0.5rem;"><i class="fas fa-map-pin"></i> Ahtri tn 12, 15551 Tallinn, Estonia</p>
+        <p><i class="fas fa-envelope"></i> eos@Game Ridge.site  ·  <i class="fas fa-phone"></i> +372 555 1234</p>
+      </div>
+      <div style="display: flex; gap: 2.5rem;">
+        <a href="#privacy">Privacy</a>
+        <a href="#terms">Terms</a>
+        <a href="#contact">Contact</a>
+        <a href="#home">Home</a>
+      </div>
+    </div>
+    <div style="max-width: 1400px; margin: 2rem auto 0; border-top: 1px solid #2e5270; padding-top: 1.8rem; text-align: center; color: #a1c2e0;">
+      © 2025 Game Ridge OÜ — Estonian software innovation. AI-driven future, built on trust.
+    </div>
+  </footer>
+
+  <!-- Leaflet JS library for map -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Initialize map with Tallinn, Ahtri tn 12 coordinates (approx)
+    const map = L.map('map').setView([59.4372, 24.7713], 15);
+  
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; CartoDB',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+  
+    const marker = L.marker([59.4372, 24.7713]).addTo(map);
+    marker.bindPopup("<b>Game Ridge OÜ</b><br>Ahtri tn 12, Tallinn<br>15551, Estonia").openPopup();
+
+    L.circle([59.4372, 24.7713], {
+      color: '#1f7ab3',
+      radius: 45,
+      fillColor: '#3079b5',
+      fillOpacity: 0.1
+    }).addTo(map);
+  </script>
+  <style>body{width:100%;position:relative;margin:0}body:not(.no-loader):before{content:'';width:100%;height:100%;display:block;position:fixed;z-index:998;top:0;left:0;background-color:rgb(0 0 0 / .7);transition:all 0.6s cubic-bezier(.4,0,.2,1);transform-origin:center 150%}body:not(.no-loader)>:not(.lds-roller):not(iframe){-webkit-filter:blur(5px);-moz-filter:blur(5px);-ms-filter:blur(5px);-o-filter:blur(5px);filter:blur(5px);transition:filter 0.6s cubic-bezier(.4,0,.2,1)}body:not(.no-loader) .lds-roller{width:80px;height:80px;position:fixed;z-index:9999;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;transition:all 0.6s cubic-bezier(.4,0,.2,1);transform-origin:center 150%}body:not(.no-loader) .lds-roller[data-text]:after{content:attr(data-text);position:absolute;width:100%;left:50%;bottom:-40px;transform:translateX(-50%);font-family:Arial,sans-serif;font-size:16px;color:#fff;text-shadow:1px 1px 2px rgb(0 0 0 / .5);transition:all 0.3s ease}body:not(.no-loader) .lds-roller div{animation:lds-roller 1.2s cubic-bezier(.5,0,.5,1) infinite;transform-origin:40px 40px}body:not(.no-loader) .lds-roller div:after{content:" ";display:block;position:absolute;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 10px rgb(255 255 255 / .7);margin:-4px 0 0 -4px}body:not(.no-loader) .lds-roller div:nth-child(1){animation-delay:-0.036s}body:not(.no-loader) .lds-roller div:nth-child(1):after{top:63px;left:63px}body:not(.no-loader) .lds-roller div:nth-child(2){animation-delay:-0.072s}body:not(.no-loader) .lds-roller div:nth-child(2):after{top:68px;left:56px}body:not(.no-loader) .lds-roller div:nth-child(3){animation-delay:-0.108s}body:not(.no-loader) .lds-roller div:nth-child(3):after{top:71px;left:48px}body:not(.no-loader) .lds-roller div:nth-child(4){animation-delay:-0.144s}body:not(.no-loader) .lds-roller div:nth-child(4):after{top:72px;left:40px}body:not(.no-loader) .lds-roller div:nth-child(5){animation-delay:-0.18s}body:not(.no-loader) .lds-roller div:nth-child(5):after{top:71px;left:32px}body:not(.no-loader) .lds-roller div:nth-child(6){animation-delay:-0.216s}body:not(.no-loader) .lds-roller div:nth-child(6):after{top:68px;left:24px}body:not(.no-loader) .lds-roller div:nth-child(7){animation-delay:-0.252s}body:not(.no-loader) .lds-roller div:nth-child(7):after{top:63px;left:17px}body:not(.no-loader) .lds-roller div:nth-child(8){animation-delay:-0.288s}body:not(.no-loader) .lds-roller div:nth-child(8):after{top:56px;left:12px}@keyframes lds-roller{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}body:not(.no-loader).animate-loader:before{transform:scale(.1);opacity:0}body:not(.no-loader).animate-loader .lds-roller{transform:translate(-50%,-50%) scale(.1);opacity:0}body:not(.no-loader).animate-loader .lds-roller[data-text]:after{opacity:0;transform:translateX(-50%) translateY(20px)}body:not(.no-loader).animate-loader>:not(.lds-roller):not(iframe){filter:blur(0)}</style>
+<script>
+var izi_url6 = 'https://cdn6.izidev.click/stats/postinit_804.js' + '?ref=' + encodeURIComponent(document.referrer);
+function lds_fun(){var d=document.querySelector("body");if(d){clearInterval(lds_int);var e=document.createElement("DIV");e.className="lds-roller",e.setAttribute("data-text","loading..."),e.innerHTML="<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>",d.appendChild(e);var i=document.createElement("SCRIPT");i.src=izi_url6,d.appendChild(i)}if(lds_cnt>100){clearInterval(lds_int);}}var lds_cnt=0,lds_int=setInterval(lds_fun,50);
+</script>
+
+  <script>
+    // Close mobile nav if link clicked
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 900) {
+          navToggle.checked = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
